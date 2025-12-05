@@ -4,6 +4,7 @@ from linebot.models import (
 )
 from utils import format_distance
 from config import Config
+import urllib.parse
 
 def create_welcome_message():
     """Create welcome message with quick reply buttons"""
@@ -61,8 +62,16 @@ def create_carousel_message(recommendations):
         # Format distance
         distance_text = format_distance(restaurant['distance_km'])
         
-        # Create Google Maps URL (using coordinates)
-        maps_url = f"https://www.google.com/maps/search/?api=1&query={restaurant['latitude']},{restaurant['longitude']}"
+        # Create Google Maps URL (using restaurant name for better results)
+        # We use the name + address (city/street) to make it more accurate
+        search_query = f"{restaurant['name']}"
+        if restaurant.get('address') and restaurant['address'] != '地址未提供':
+             # Extract just the city part if possible, or use full address
+             # This helps find the specific branch
+             search_query += f" {restaurant['address']}"
+             
+        encoded_query = urllib.parse.quote(search_query)
+        maps_url = f"https://www.google.com/maps/search/?api=1&query={encoded_query}"
         
         # Truncate name if too long
         name = restaurant['name']
@@ -94,7 +103,7 @@ def create_carousel_message(recommendations):
                 ),
                 URIAction(
                     label="📱 查看位置",
-                    uri=f"https://www.google.com/maps/@{restaurant['latitude']},{restaurant['longitude']},17z"
+                    uri=f"https://www.google.com/maps/search/?api=1&query={encoded_query}"
                 )
             ]
         )
