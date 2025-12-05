@@ -3,4 +3,6 @@ line-bot-sdk==3.5.0
 requests==2.31.0
 gunicorn==20.1.0
 python-dotenv==0.21.1
-aiohttp==3.8.5
+export AIOHTTP_NO_EXTENSIONS=1
+pip install aiohttp==4.0.0
+
